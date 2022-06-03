@@ -107,43 +107,67 @@ chocolate.
 
 How many constellations are formed by the fixed points in spacetime?
  */
-use std::collections::HashMap;
 
 
 pub fn solve()
 {
-
+    let v = Vec::new();
+    let u = nr_constellations(&to_points(v));
+    println!("{}", u);
 }
 
 
 fn nr_constellations(fixed_points: &Vec<Point>) -> u16
 {
-    let mut highest_constellation: u16 = 0;
-    let mut constellations: HashMap<&Point, u16> = HashMap::with_capacity(fixed_points.len());
+    let mut constellations: Vec<Constellation> = vec![];
 
-    for point in fixed_points {
-        let mut neighbors: Vec<(&Point, u16)> = vec![];
-        for (&constellation_point, &constellation_nr) in constellations.iter() {
-            if distance(&point, &constellation_point) <= 3 {
-                neighbors.push((&constellation_point, constellation_nr));
-            }
-        }
-        if neighbors.len() > 0 {
-            let constellation_nr = neighbors[0].1;
-            for neighbor in neighbors.iter() {
-                constellations.insert(neighbor.0, neighbor.1);
-            }
-            constellations.insert(point, constellation_nr);
-        } else {
-            constellations.insert(point, highest_constellation);
-            highest_constellation += 1;
-        }
+    for &point in fixed_points {
+        constellations = update_constellations(constellations, point);
     }
-    print!("{}", fixed_points[0].x);
-    highest_constellation
+    constellations.len().try_into().unwrap()
 }
 
+fn update_constellations(constellations: Vec<Constellation>, point: Point) -> Vec<Constellation>
+{
+    let mut result = Vec::new();
+    let mut found_constellation: Option<Constellation> = None;
+    for constellation in constellations {
+        if in_constellation(&constellation, &point) {
+            found_constellation = update_found_constellation(found_constellation, constellation, point);
+        } else {
+            result.push(constellation);
+        }
+    }
+    match found_constellation {
+        None => result.push(Constellation{ points: vec![point]}),
+        Some(constellation) => result.push(constellation)
+    }
+    result
+}
 
+fn update_found_constellation(
+    found_constellation: Option<Constellation>,
+    constellation: Constellation,
+    point: Point,
+) -> Option<Constellation>
+{
+    match found_constellation {
+        None => {
+            let mut new_points = constellation.points;
+            new_points.push(point);
+            return Some(Constellation{ points: new_points});
+        },
+        Some(constellation_1) => {
+            let mut new_points = constellation.points;
+            new_points.push(point);
+            let new_found_constellations = vec![
+                Constellation{ points: new_points},
+                constellation_1,
+            ];
+            return Some(merge_constellations(new_found_constellations))
+        }
+    }
+}
 
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
@@ -172,6 +196,31 @@ fn to_points(raw: Vec<i32>) -> Vec<Point> {
     }
     result
 }
+
+struct Constellation {
+    points: Vec<Point>,
+}
+
+fn in_constellation(constellation: &Constellation, point: &Point) -> bool {
+    for constellation_point in &constellation.points {
+        if distance(&point, &constellation_point) <= 3 {
+            return true;
+        }
+    }
+    false
+}
+
+fn merge_constellations(constellations: Vec<Constellation>) -> Constellation {
+    let mut points: Vec<Point> = vec! [];
+    for constellation in constellations {
+        let mut p = constellation.points.clone();
+        points.append(&mut p);
+    }
+    Constellation {
+        points
+    }
+}
+
 
 
 #[cfg(test)]
@@ -256,23 +305,6 @@ mod tests
             -1,-2,0,-2,
         ];
         assert_eq!(nr_constellations(&to_points(example_3)), 8);
-    }
-
-    #[test]
-    fn jaaaragh()
-    {
-        let mut dict = HashMap::new();
-        dict.insert("a", 10);
-        dict.insert("b", 11);
-        let mut list: Vec<&str> = vec! [];
-        for (key, &value) in dict.iter() {
-            if value == 10 {
-                list.push(key);
-            }
-        }
-        for list_item in list.iter() {
-            dict.insert(list_item, 22);
-        }
     }
 
 }

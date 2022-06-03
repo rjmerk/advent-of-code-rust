@@ -19,10 +19,6 @@ fn main() {
     cargo run <int> --release
  */
     let problems = init_advent_code_map();
-    for nr in sorted(problems.keys()) {
-        solve_problem(*nr, &problems);
-    }
-
     let args: Vec<String> = env::args()
         .filter(|x| x != "--release")
         .collect();
