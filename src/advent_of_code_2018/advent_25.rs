@@ -107,33 +107,76 @@ chocolate.
 
 How many constellations are formed by the fixed points in spacetime?
  */
-
+use std::fs;
 
 pub fn solve()
 {
-    let v = Vec::new();
-    let u = nr_constellations(&to_points(v));
-    println!("{}", u);
+/*
+We solve this problem by maintaining a list of constellations, check for each
+point if it's part of an existing one or it forms a new one and, in the end,
+ just count the number of constellations.
+
+So there are three scenarios when checking a point against existing
+constellations:
+
+1) the point is not near (distance <= 3) any constellation.
+    In that case, make a new one with that point as its only member.
+
+2) The point is near one constellation.
+    In that case, just add the point to that constellation.
+
+3) The point is near two or more constellations.
+    This is possible! If a point is between constellations, then this happens
+    (and with four dimensions, it's not extremely uncommon as well).
+    This means we cannot stop checking a point against constellations once we
+    found the first match, we always need to check all existing constellations.
+
+    Once we find a second constellation that is near the point, we merge the two
+    constellations and add the point to this big constellation. If we encounter
+    yet another constellation near the point, we merge that with this big
+    constellation, and so on.
+ */
+    let points = get_points_from_file();
+    let result = nr_constellations(points);
+    println!("The number of constellations is {}.", result);
+    // The number of constellations is 394.
 }
 
+fn get_points_from_file() -> Vec<Point>
+{
+    let input = fs::read_to_string("data/advent_of_code_2018/input_25.txt").unwrap();
+    let coordinates: Vec<i32> = input
+        .replace("\n", ",")
+        .split(",")
+        .filter(|s| *s != "")
+        .map(|s| s.parse().unwrap())
+        .collect();
+    to_points(coordinates)
+}
 
-fn nr_constellations(fixed_points: &Vec<Point>) -> u16
+fn nr_constellations(fixed_points: Vec<Point>) -> usize
 {
     let mut constellations: Vec<Constellation> = vec![];
-
-    for &point in fixed_points {
+    for point in fixed_points {
         constellations = update_constellations(constellations, point);
     }
-    constellations.len().try_into().unwrap()
+    constellations.len()
 }
 
-fn update_constellations(constellations: Vec<Constellation>, point: Point) -> Vec<Constellation>
+fn update_constellations(
+    constellations: Vec<Constellation>,
+    point: Point,
+) -> Vec<Constellation>
 {
     let mut result = Vec::new();
     let mut found_constellation: Option<Constellation> = None;
     for constellation in constellations {
         if in_constellation(&constellation, &point) {
-            found_constellation = update_found_constellation(found_constellation, constellation, point);
+            found_constellation = update_found_constellation(
+                found_constellation,
+                constellation,
+                point,
+            );
         } else {
             result.push(constellation);
         }
@@ -147,28 +190,37 @@ fn update_constellations(constellations: Vec<Constellation>, point: Point) -> Ve
 
 fn update_found_constellation(
     found_constellation: Option<Constellation>,
-    constellation: Constellation,
+    neighboring_constellation: Constellation,
     point: Point,
 ) -> Option<Constellation>
 {
-    match found_constellation {
+    let mut new_points = neighboring_constellation.points;
+    new_points.push(point);
+    let constellation_plus_point = Constellation {
+        points: new_points
+    };
+    return match found_constellation {
         None => {
-            let mut new_points = constellation.points;
-            new_points.push(point);
-            return Some(Constellation{ points: new_points});
+            Some(constellation_plus_point)
         },
-        Some(constellation_1) => {
-            let mut new_points = constellation.points;
-            new_points.push(point);
-            let new_found_constellations = vec![
-                Constellation{ points: new_points},
-                constellation_1,
-            ];
-            return Some(merge_constellations(new_found_constellations))
+        Some(constellation) => {
+        /*
+         This means that the point was already added to a constellation.
+         It is possible that a point belongs to multiple previous created
+         constellations, i.e. it lies between them.
+
+         In this case, it means that the point connects all the constellations
+         it's near, so in fact they are all the same constellation! So we merge
+         the latest neighboring constellation with the found one.
+         */
+            let merged = merge_constellations(
+                constellation_plus_point,
+                constellation,
+            );
+            Some(merged)
         }
     }
 }
-
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 struct Point {
@@ -186,10 +238,10 @@ fn distance(p1: &Point, p2: &Point) -> i32
     + (p1.t - p2.t).abs()
 }
 
-
-fn to_points(raw: Vec<i32>) -> Vec<Point> {
+fn to_points(raw: Vec<i32>) -> Vec<Point>
+{
     let mut result = vec! [];
-    for n in (0..raw.len()).step_by(4) {
+    for n in (0..raw.len()-4).step_by(4) {
         result.push(
             Point{x: raw[n], y: raw[n+1], z:raw[n+2], t:raw[n+3]},
         )
@@ -201,7 +253,8 @@ struct Constellation {
     points: Vec<Point>,
 }
 
-fn in_constellation(constellation: &Constellation, point: &Point) -> bool {
+fn in_constellation(constellation: &Constellation, point: &Point) -> bool
+{
     for constellation_point in &constellation.points {
         if distance(&point, &constellation_point) <= 3 {
             return true;
@@ -210,18 +263,17 @@ fn in_constellation(constellation: &Constellation, point: &Point) -> bool {
     false
 }
 
-fn merge_constellations(constellations: Vec<Constellation>) -> Constellation {
-    let mut points: Vec<Point> = vec! [];
-    for constellation in constellations {
-        let mut p = constellation.points.clone();
-        points.append(&mut p);
-    }
+fn merge_constellations(
+    constellation_a: Constellation,
+    constellation_b: Constellation,
+) -> Constellation
+{
+    let mut points: Vec<Point> = constellation_a.points.clone();
+    points.append(&mut constellation_b.points.clone());
     Constellation {
         points
     }
 }
-
-
 
 #[cfg(test)]
 mod tests
@@ -249,7 +301,7 @@ mod tests
             9,0,0,0,
             12,0,0,0,
         ];
-        assert_eq!(nr_constellations(&to_points(example)), 2);
+        assert_eq!(nr_constellations(to_points(example)), 2);
     }
 
 
@@ -268,7 +320,7 @@ mod tests
             0,2,1,-2,
             3,0,0,0,
         ];
-        assert_eq!(nr_constellations(&to_points(example_1)), 4);
+        assert_eq!(nr_constellations(to_points(example_1)), 4);
     }
 
     #[test]
@@ -286,7 +338,7 @@ mod tests
             1,-1,0,-1,
             3,2,0,2,
         ];
-        assert_eq!(nr_constellations(&to_points(example_2)), 3);
+        assert_eq!(nr_constellations(to_points(example_2)), 3);
     }
 
     #[test]
@@ -304,7 +356,6 @@ mod tests
             1,2,2,0,
             -1,-2,0,-2,
         ];
-        assert_eq!(nr_constellations(&to_points(example_3)), 8);
+        assert_eq!(nr_constellations(to_points(example_3)), 8);
     }
-
 }
