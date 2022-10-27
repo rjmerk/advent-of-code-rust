@@ -120,7 +120,7 @@ So there are three scenarios when checking a point against existing
 constellations:
 
 1) the point is not near (distance <= 3) any constellation.
-    In that case, make a new one with that point as its only member.
+    In that case, make a new constellation with that point as its only member.
 
 2) The point is near one constellation.
     In that case, just add the point to that constellation.
@@ -137,6 +137,7 @@ constellations:
     constellation, and so on.
  */
     let points = get_points_from_file();
+    println!("Nr of points is {}.", points.len());
     let result = nr_constellations(points);
     println!("The number of constellations is {}.", result);
     // The number of constellations is 394.
