@@ -5,12 +5,21 @@ use std::str::FromStr;
 
 use crate::advent_of_code_2022::advent_02::Shape::Scissor;
 
+const TRY_TO_LOSE: &str = "X";
+const TRY_TO_DRAW: &str = "Y";
+const TRY_TO_WIN: &str = "Z";
+
+
 pub fn solve()
 {
     let input = fs::read_to_string("data/advent_of_code_2022/input_02.txt").unwrap();
     let rounds: Vec<Round> = input.split("\n").map(|s| create_round_from_str(s).unwrap()).collect();
     let score: i32 = rounds.iter().map(score_for_round).sum();
     println!("Total score of all rock-paper-scissor games is {}", score);
+    println!("Star 2");
+    let rounds_2: Vec<Round> = input.split("\n").map(|s| create_round_from_str_2(s).unwrap()).collect();
+    let score_2: i32 = rounds_2.iter().map(score_for_round).sum();
+    println!("Total score of all rock-paper-scissor games with correct Elf instructions is {}", score_2);
 }
 
 
@@ -51,17 +60,15 @@ fn create_round_from_str(input: &str) -> Result<Round, ()> {
 fn create_round_from_str_2(input: &str) -> Result<Round, ()> {
     let parts: Vec<&str> = input.split(" ").collect();
     let opponent_shape: Shape = parts[0].parse().unwrap();
-    let response_shap = Shape::Rock;
-    Ok(Round {opponent: opponent_shape.clone(), response: response_shap})
+    let response_shape = find_response(&opponent_shape, parts[1]);
+    Ok(Round {opponent: opponent_shape.clone(), response: response_shape})
 }
-
 
 fn beats(a: &Shape, b: &Shape) -> bool {
     (a == &Shape::Rock && b == &Shape::Scissor)
     || (a == &Shape::Scissor && b == &Shape::Paper)
     || (a == &Shape::Paper && b == &Shape::Rock)
 }
-
 
 fn score_for_round(round: &Round) -> i32
 {
@@ -89,8 +96,22 @@ fn score_outcome(round: &Round) -> i32
 }
 
 
-fn find_response(opponent: &Shape, desired_outcome: &str) -> Shape {
+fn find_response(opponent: &Shape, desired_outcome: &str) -> Shape
+{
+    match (opponent, desired_outcome) {
+        (Shape::Rock, TRY_TO_LOSE) => Shape::Scissor,
+        (Shape::Rock, TRY_TO_DRAW) => Shape::Rock,
+        (Shape::Rock, TRY_TO_WIN) => Shape::Paper,
 
+        (Shape::Paper, TRY_TO_LOSE) => Shape::Rock,
+        (Shape::Paper, TRY_TO_DRAW) => Shape::Paper,
+        (Shape::Paper, TRY_TO_WIN) => Shape::Scissor,
+
+        (Shape::Scissor, TRY_TO_LOSE) => Shape::Paper,
+        (Shape::Scissor, TRY_TO_DRAW) => Shape::Scissor,
+        (Shape::Scissor, TRY_TO_WIN) => Shape::Rock,
+        _ => Shape::Rock // should not happen
+    }
 }
 
 #[cfg(test)]
