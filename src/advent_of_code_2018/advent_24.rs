@@ -84,7 +84,7 @@ impl Group {
         if enemies.len() == 0 {
             return None;
         }
-        let mut target: Option<&Group> = None;
+        let target: Option<&Group> = None;
         // enemies.sort_unstable_by(Group::better_target);
         target
     }

@@ -3,9 +3,10 @@ use std::time::{Instant, Duration};
 use std::collections::HashMap;
 use itertools::sorted;
 
-mod advent_of_code_2018;
+mod advent_of_code_2018; mod advent_of_code_2022;
 
 use advent_of_code_2018::init_advent_code_map;
+use advent_of_code_2022::init_advent_code_map_2022;
 
 
 fn main() {
@@ -18,7 +19,8 @@ fn main() {
     To run specific problem
     cargo run <int> --release
  */
-    let problems = init_advent_code_map();
+    init_advent_code_map(); // todo
+    let problems = init_advent_code_map_2022();
     let args: Vec<String> = env::args()
         .filter(|x| x != "--release")
         .collect();
