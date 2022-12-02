@@ -20,27 +20,29 @@ fn main() {
     cargo run <int> --release
  */
     init_advent_code_map(); // todo
-    let problems = init_advent_code_map_2022();
+
     let args: Vec<String> = env::args()
         .filter(|x| x != "--release")
         .collect();
 
+    let problems = init_advent_code_map_2022();
+    let year = 2022;
     if args.len() == 1 {
         for nr in sorted(problems.keys()) {
-            solve_problem(*nr, &problems);
+            solve_problem(year,*nr, &problems);
         }
     } else {
         let problem_nr = args[1].parse::<i32>();
         match problem_nr {
-            Ok(nr) => solve_problem(nr, &problems),
+            Ok(nr) => solve_problem(year, nr, &problems),
             Err(error) => println!("Could not parse number: {}", error)
         };
     }
 }
 
-fn solve_problem(problem_nr: i32, problems: &HashMap<i32, fn()-> ()>) {
+fn solve_problem(year: i32, problem_nr: i32, problems: &HashMap<i32, fn()-> ()>) {
     println!();
-    println!("Problem {}", problem_nr);
+    println!("Advent {}, problem {}", year, problem_nr);
     let now: Instant = Instant::now();
     problems[&problem_nr]();
     let duration: Duration = now.elapsed();

@@ -1,6 +1,4 @@
 use std::fs;
-use std::env;
-use itertools::Itertools;
 
 pub fn solve()
 {
