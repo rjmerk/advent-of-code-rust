@@ -1,5 +1,4 @@
 use regex::Regex;
-use std::cmp::Ordering;
 use std::str::FromStr;
 
 pub fn solve()
@@ -44,50 +43,50 @@ struct Group {
 
 impl Group {
 
-    fn effective_power(&self) -> i32
-    {
-        self.units * self.attack_damage
-    }
+    // fn effective_power(&self) -> i32
+    // {
+    //     self.units * self.attack_damage
+    // }
 
-    fn damage_from_attack(&self, group: &Group) -> i32
-    {
-        let multiplier = if
-            self.immunities.contains(&group.attack_type) { 0 }
-            else if self.weaknesses.contains(&group.attack_type) { 2 }
-            else { 1 };
-        group.effective_power() * multiplier
-    }
+    // fn damage_from_attack(&self, group: &Group) -> i32
+    // {
+    //     let multiplier = if
+    //         self.immunities.contains(&group.attack_type) { 0 }
+    //         else if self.weaknesses.contains(&group.attack_type) { 2 }
+    //         else { 1 };
+    //     group.effective_power() * multiplier
+    // }
+    //
+    // fn apply_damage_from_attack(&mut self, group: &Group)
+    // {
+    //     let units_lost = self.damage_from_attack(&group) / self.hit_points;
+    //     self.units -= units_lost;
+    // }
 
-    fn apply_damage_from_attack(&mut self, group: &Group)
-    {
-        let units_lost = self.damage_from_attack(&group) / self.hit_points;
-        self.units -= units_lost;
-    }
+    // fn better_target(attacker: &Group, target_1: &Group, target_2: &Group) -> Ordering
+    // {
+    //     // if target_1.damage_from_attack(attacker) < target_2.damage_from_attack(attacker) {
+    //     //     return Ordering::Less;
+    //     // } else
+    //     if target_1.effective_power() < target_2.effective_power() {
+    //         return Ordering::Less;
+    //     }
+    //     if target_1.initiative < target_2.initiative {
+    //         return Ordering::Less;
+    //     }
+    //     Ordering::Equal
+    //
+    // }
 
-    fn better_target(attacker: &Group, target_1: &Group, target_2: &Group) -> Ordering
-    {
-        // if target_1.damage_from_attack(attacker) < target_2.damage_from_attack(attacker) {
-        //     return Ordering::Less;
-        // } else
-        if target_1.effective_power() < target_2.effective_power() {
-            return Ordering::Less;
-        }
-        if target_1.initiative < target_2.initiative {
-            return Ordering::Less;
-        }
-        Ordering::Equal
-
-    }
-
-    fn find_target(&self, enemies: &mut Vec<&Group>) -> Option<&Group>
-    {
-        if enemies.len() == 0 {
-            return None;
-        }
-        let target: Option<&Group> = None;
-        // enemies.sort_unstable_by(Group::better_target);
-        target
-    }
+    // fn find_target(&self, enemies: &mut Vec<&Group>) -> Option<&Group>
+    // {
+    //     if enemies.len() == 0 {
+    //         return None;
+    //     }
+    //     let target: Option<&Group> = None;
+    //     // enemies.sort_unstable_by(Group::better_target);
+    //     target
+    // }
 
 }
 

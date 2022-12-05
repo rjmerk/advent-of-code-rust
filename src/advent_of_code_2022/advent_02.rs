@@ -1,9 +1,5 @@
 use std::fs;
-use std::env;
-use itertools::Itertools;
 use std::str::FromStr;
-
-use crate::advent_of_code_2022::advent_02::Shape::Scissor;
 
 const TRY_TO_LOSE: &str = "X";
 const TRY_TO_DRAW: &str = "Y";
