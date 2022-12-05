@@ -126,13 +126,13 @@ mod tests
         assert_eq!(actual, Shape::Rock);
     }
 
-    // #[test]
-    // fn test_parse_2()
-    // {
-    //     let actual: Round = "A Y".parse().unwrap();
-    //     assert_eq!(actual.opponent, Shape::Rock);
-    //     assert_eq!(actual.response, Shape::Paper);
-    // }
+    #[test]
+    fn test_create_round_from_str()
+    {
+        let actual: Round = create_round_from_str("A Y").unwrap();
+        assert_eq!(actual.opponent, Shape::Rock);
+        assert_eq!(actual.response, Shape::Paper);
+    }
 
     #[test]
     fn test_score_for_round_1()

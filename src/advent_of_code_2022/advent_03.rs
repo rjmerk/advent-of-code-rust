@@ -9,10 +9,16 @@ pub fn solve()
         .map(|x| x.unwrap())
         .map(priority)
         .sum();
-    println!("The sum of the priority of all common items is {}", result)
-
+    println!("The sum of the priority of all common items is {}", result);
+    let strings: Vec<String> = input.split("\n").map(|x| x.to_string()).collect();
+    let triplets: Vec<Vec<String>> = split_into_triplets(strings);
+    let result_2: u32 = triplets.into_iter()
+        .map(badge)
+        .map(|x| x.unwrap())
+        .map(priority)
+        .sum();
+    println!("The sum of the priority of the badges is {}", result_2);
 }
-
 
 fn find_common_item(s: &str) -> Result<String, &str>
 {
@@ -34,6 +40,38 @@ fn priority(s: String) -> u32 {
     } else {
         x as u32 - 96
     }
+}
+
+fn badge(strings: Vec<String>) -> Result<String, String>
+{
+    for character in strings[0].chars() {
+        let mut found = true;
+        for string in strings[1..].iter() {
+            if ! string.contains(character) {
+                found = false;
+            }
+        }
+        if found {
+            return Ok(character.to_string());
+        }
+    }
+    Err("Couldn't find the badge".to_string())
+}
+
+fn split_into_triplets<T>(input: Vec<T>) -> Vec<Vec<T>> where T: Clone {
+    let mut result: Vec<Vec<T>> = vec![];
+    let mut n: u32 = 0;
+    let mut store: Vec<T> = vec![];
+    for item in input.into_iter() {
+        store.push(item);
+        n += 1;
+        if n == 3 {
+            result.push(store.clone());
+            store.clear();
+            n = 0;
+        }
+    }
+    result
 }
 
 #[cfg(test)]
@@ -68,6 +106,11 @@ mod tests
             find_common_item("CrZsJsPPZsGzwwsLwLmpwMDw"),
             Ok("s".to_string())
         );
+        assert_eq!(
+            find_common_item("abcdef"),
+            Err("Could not find a common item")
+        );
+
     }
 
     #[test]
@@ -78,5 +121,29 @@ mod tests
         assert_eq!(priority("v".to_string()), 22);
         assert_eq!(priority("t".to_string()), 20);
         assert_eq!(priority("s".to_string()), 19);
+    }
+
+    #[test]
+    fn test_badge() {
+        let xs = vec![
+            "vJrwpWtwJgWrhcsFMMfFFhFp".to_string(),
+            "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL".to_string(),
+            "PmmdzqPrVvPwwTWBwg".to_string()
+        ];
+        assert_eq!(badge(xs), Ok("r".to_string()));
+
+        let ys = vec![
+            "wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn".to_string(),
+            "ttgJtRGJQctTZtZT".to_string(),
+            "CrZsJsPPZsGzwwsLwLmpwMDw".to_string(),
+        ];
+        assert_eq!(badge(ys), Ok("Z".to_string()));
+    }
+
+    #[test]
+    fn test_triplets() {
+        let actual = split_into_triplets(vec!["1", "2", "3", "4", "5", "6"]);
+        let expected = vec![vec!["1", "2", "3"], vec!["4", "5", "6"]];
+        assert_eq!(actual, expected)
     }
 }
