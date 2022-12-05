@@ -1,4 +1,4 @@
-mod advent_01; mod advent_02; mod advent_03;
+mod advent_01; mod advent_02; mod advent_03; mod advent_04;
 
 use std::collections::HashMap;
 
@@ -7,5 +7,6 @@ pub fn init_advent_code_map_2022() -> HashMap<i32, fn()> {
     result.insert(1, advent_01::solve);
     result.insert(2, advent_02::solve);
     result.insert(3, advent_03::solve);
+    result.insert(4, advent_04::solve);
     result
 }

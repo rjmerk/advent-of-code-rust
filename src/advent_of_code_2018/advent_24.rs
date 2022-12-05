@@ -195,36 +195,36 @@ mod tests
         assert_eq!(group.immunities, vec![AttackType::Fire, AttackType::Bludgeoning]);
     }
 
-    #[test]
-    fn test_doing_damage()
-    {
-        let attacker = Group {units: 25, attack_damage: 3, ..DEFAULT_GROUP};
-        let mut defender = Group {units: 10, hit_points: 10, ..DEFAULT_GROUP};
-        defender.apply_damage_from_attack(&attacker);
-        assert_eq!(defender.units, 3);
-    }
+    // #[test]
+    // fn test_doing_damage()
+    // {
+    //     let attacker = Group {units: 25, attack_damage: 3, ..DEFAULT_GROUP};
+    //     let mut defender = Group {units: 10, hit_points: 10, ..DEFAULT_GROUP};
+    //     defender.apply_damage_from_attack(&attacker);
+    //     assert_eq!(defender.units, 3);
+    // }
 
-    #[test]
-    fn test_sorting_targets()
-    {
-        let target_1 =  Group {hit_points: 1, initiative: 3, ..DEFAULT_GROUP};
-        let target_2 =  Group {hit_points: 1, initiative: 1, ..DEFAULT_GROUP};
-        let target_3 =  Group {hit_points: 1, initiative: 12, ..DEFAULT_GROUP};
-        let attacker = Group {..DEFAULT_GROUP};
-        let mut targets = vec![target_1, target_2, target_3];
-        let sort_function = |t1: &Group, t2: &Group| { return Group::better_target(&attacker, t1, t2);};
+    // #[test]
+    // fn test_sorting_targets()
+    // {
+    //     let target_1 =  Group {hit_points: 1, initiative: 3, ..DEFAULT_GROUP};
+    //     let target_2 =  Group {hit_points: 1, initiative: 1, ..DEFAULT_GROUP};
+    //     let target_3 =  Group {hit_points: 1, initiative: 12, ..DEFAULT_GROUP};
+    //     let attacker = Group {..DEFAULT_GROUP};
+    //     let mut targets = vec![target_1, target_2, target_3];
+    //     let sort_function = |t1: &Group, t2: &Group| { return Group::better_target(&attacker, t1, t2);};
+    //
+    //     let aa = targets.sort_by(sort_function);
+    //     println!();
+    // }
 
-        let aa = targets.sort_by(sort_function);
-        println!();
-    }
-
-    #[test]
-    fn test_sorting_i()
-    {
-        let mut xs: Vec<i32> = vec! [8, 1, 9, 10, 7, 90];
-        let sort_fn = |x1: &i32, x2: &i32| { if x1 < x2 {return Ordering::Less;} else {return Ordering::Greater;};};
-        xs.sort_by(sort_fn);
-        println!();
-    }
+    // #[test]
+    // fn test_sorting_i()
+    // {
+    //     let mut xs: Vec<i32> = vec! [8, 1, 9, 10, 7, 90];
+    //     let sort_fn = |x1: &i32, x2: &i32| { if x1 < x2 {return Ordering::Less;} else {return Ordering::Greater;};};
+    //     xs.sort_by(sort_fn);
+    //     println!();
+    // }
 
 }
