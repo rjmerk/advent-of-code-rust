@@ -141,15 +141,15 @@ impl FromStr for Group {
 mod tests
 {
     use super::*;
-    const DEFAULT_GROUP: Group = Group {
-        units: 10,
-        hit_points: 10,
-        attack_damage: 10,
-        attack_type: AttackType::Fire,
-        initiative: 4,
-        weaknesses: vec![],
-        immunities: vec![],
-    };
+    // const DEFAULT_GROUP: Group = Group {
+    //     units: 10,
+    //     hit_points: 10,
+    //     attack_damage: 10,
+    //     attack_type: AttackType::Fire,
+    //     initiative: 4,
+    //     weaknesses: vec![],
+    //     immunities: vec![],
+    // };
 
     #[test]
     fn test_parse_group_1()
