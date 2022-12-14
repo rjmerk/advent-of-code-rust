@@ -14,22 +14,42 @@ fn register_values(instructions: &Vec<&str>) -> Vec<i32>
 {
     let mut result: Vec<i32> = vec![1];
     let mut cycle: usize = 1;
-
+    print!("#");
     for instruction in instructions.iter() {
         if *instruction == "noop" {
             result.push(result[cycle - 1]);
+            print_ja(&cycle, result[cycle]);
             cycle += 1;
+
         } else {
             let (_add_x, value_str) = instruction.split_once(" ").unwrap();
             let value: i32 = value_str.parse().unwrap();
             result.push(result[cycle - 1]);
+            print_ja(&cycle, result[cycle]);
             cycle += 1;
+
             result.push(result[cycle - 1] + value);
+            print_ja(&cycle, result[cycle]);
             cycle += 1;
+
         }
     }
 
     result
+}
+
+fn print_ja(cycle: &usize, x: i32) {
+    let x_pos = (cycle % 40) as i32;
+    if (x_pos - x).abs() <= 1 {
+        print!("#");
+    } else {
+        print!(".");
+    }
+
+    if x_pos == 39 {
+        println!()
+    }
+
 }
 
 fn answer_part_1(values: &Vec<i32>) -> i32
