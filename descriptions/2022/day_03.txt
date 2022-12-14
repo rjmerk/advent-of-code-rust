@@ -58,7 +58,7 @@ The problem is that someone forgot to put this year's updated authenticity stick
  need to be pulled out of the rucksacks so the new authenticity stickers can be attached.
 
 Additionally, nobody wrote down which item type corresponds to each group's badges. The only way to tell which item
-type is the right one is by finding the one item type that is common between all three Elves in each group.
+type is the Right one is by finding the one item type that is common between all three Elves in each group.
 
 Every set of three lines in your list corresponds to a single group, but each group can have a different badge
 item type. So, in the above example, the first group's rucksacks are the first three lines:
