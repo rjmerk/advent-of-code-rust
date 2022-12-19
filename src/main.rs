@@ -1,3 +1,5 @@
+extern crate core;
+
 use std::env;
 use std::time::{Instant, Duration};
 use std::collections::HashMap;

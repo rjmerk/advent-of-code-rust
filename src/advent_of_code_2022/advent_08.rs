@@ -234,7 +234,7 @@ mod tests
 
     #[test]
     fn test_scenery_score() {
-        let mut heightmap = Heightmap::from_str(
+        let heightmap = Heightmap::from_str(
             "30373\n25512\n65332\n33549\n35390".to_string()
         );
         let height = heightmap.height_at(2, 1);

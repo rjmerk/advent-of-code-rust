@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fs;
 
 pub fn solve()
@@ -31,10 +30,8 @@ fn register_values(instructions: &Vec<&str>) -> Vec<i32>
             result.push(result[cycle - 1] + value);
             print_ja(&cycle, result[cycle]);
             cycle += 1;
-
         }
     }
-
     result
 }
 
@@ -45,11 +42,9 @@ fn print_ja(cycle: &usize, x: i32) {
     } else {
         print!(".");
     }
-
     if x_pos == 39 {
         println!()
     }
-
 }
 
 fn answer_part_1(values: &Vec<i32>) -> i32
@@ -62,7 +57,6 @@ fn answer_part_1(values: &Vec<i32>) -> i32
 #[cfg(test)]
 mod tests
 {
-    use itertools::Itertools;
     use super::*;
 
     #[test]
