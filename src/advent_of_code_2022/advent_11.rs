@@ -3,23 +3,65 @@ use std::fs;
 pub fn solve()
 {
     let input = fs::read_to_string("data/advent_of_code_2022/input_11.txt").unwrap();
-    let monkeys = let_monkeys_play(&input);
-    let monkey_business = calculate_monkey_business(&monkeys);
+    let result_part_1 = solve_x(&input, true, 20);
     println!(
         "The level of monkey business after 20 rounds of stuff-slinging simian shenanigans is {}",
-        monkey_business,
+        result_part_1,
+    );
+    let result_part_2 = solve_x(&input, false, 10000);
+    println!(
+        "The level of monkey business after 10000 rounds is {}",
+        result_part_2,
     );
 }
 
-fn let_monkeys_play(input: &str) -> Vec<Monkey> {
+fn solve_x(input: &str, with_worry_update: bool, nr_round: i32) -> u64
+{
     let monkey_strs: Vec<&str> = input.split("\n\n").collect();
     let mut monkeys: Vec<Monkey> = monkey_strs.into_iter().map(parse_monkey).collect();
-    for _n in 0..20 {
-        let m2 = turn(&monkeys);
-        monkeys = m2.clone();
+    let common_divider: u64 = monkeys
+        .iter()
+        .map(|monkey| monkey.divisible_by)
+        .product();
+
+    for _n in 0..nr_round {
+        for m in 0..monkeys.len() {
+            let monkey = &mut monkeys[m];
+            let mut items_to_throw: Vec<(usize, u64)> = vec![];
+            while monkey.items.len() > 0 {
+                let (target_monkey, item) = execute_round(&with_worry_update, monkey);
+                items_to_throw.push((target_monkey, item % common_divider));
+            }
+            for (target_monkey, item) in items_to_throw {
+                monkeys[target_monkey].items.push(item);
+            }
+        }
     }
-    monkeys
+    calculate_monkey_business(&monkeys)
 }
+
+fn execute_round(
+    with_worry_update: &bool,
+    monkey: &mut Monkey,
+) -> (usize, u64)
+{
+    let item = monkey.items.remove(0);
+    let mut item_updated = match monkey.operation {
+        Operation::MultiplyBy(value) => item * value,
+        Operation::MultiplyByOld => item * item,
+        Operation::Add(value) => item + value,
+    };
+    if *with_worry_update {
+        item_updated = item_updated / 3;
+    }
+    monkey.nr_inspects += 1;
+    let target_monkey = match item_updated % monkey.divisible_by {
+        0 => monkey.if_true_throw_to_monkey,
+        _ => monkey.if_false_throw_to_monkey,
+    };
+    (target_monkey, item_updated)
+}
+
 
 fn calculate_monkey_business(monkeys: &Vec<Monkey>) -> u64
 {
@@ -34,7 +76,7 @@ fn parse_monkey(input: &str) -> Monkey
     let lines: Vec<&str> = input.lines().collect();
     let (_, items_str): (&str, &str) = (lines[1].split_once(":")).unwrap();
     let items: Vec<u64> = items_str.split(",").map(|x| x.trim().parse().unwrap()).collect();
-    let operation = determine_operation(lines[2]);
+    let operation = parse_operation(lines[2]);
     let (_, divisible_str) = (lines[3].split_once("by")).unwrap();
     let divisible_by: u64 = divisible_str.trim().parse().unwrap();
 
@@ -50,7 +92,7 @@ fn parse_monkey(input: &str) -> Monkey
     }
 }
 
-fn determine_operation(line: &str) -> Operation
+fn parse_operation(line: &str) -> Operation
 {
     let (_, op_str) = (line.split_once("old")).unwrap();
 
@@ -65,47 +107,6 @@ fn determine_operation(line: &str) -> Operation
     } else {
         Operation::Add(0) // should not happen
     };
-}
-
-fn round(monkey: &Monkey, item_to_be_inspected: &u64) -> RoundResult
-{
-    // println!("  Monkey inspects an item with a worry level of {}", item_to_be_inspected);
-    let (msg, new_value) = match monkey.operation {
-        Operation::MultiplyBy(value) => (format!("multiplied by {}", value), item_to_be_inspected * value),
-        Operation::MultiplyByOld => (format!("multiplied by {}", item_to_be_inspected), item_to_be_inspected * item_to_be_inspected),
-        Operation::Add(value) => (format!("added by {}", value), item_to_be_inspected + value),
-    };
-    // println!("    Worry level is {} to {}", msg, new_value);
-    let item_to_throw = new_value / 3;
-    // println!("    Monkey gets bored with item. Worry level is divided by 3 to {}", item_to_throw);
-    let throw_to_monkey = if item_to_throw % monkey.divisible_by == 0 {
-        // println!("    Current worry level is divisible by {}", monkey.divisible_by);
-        monkey.if_true_throw_to_monkey
-    } else {
-        // println!("    Current worry level is not divisible by {}", monkey.divisible_by);
-        monkey.if_false_throw_to_monkey
-    };
-    // println!("    Item with worry level {} is thrown to monkey {}.", item_to_throw, throw_to_monkey);
-    RoundResult {
-        throw_to_monkey,
-        item_to_throw,
-    }
-}
-
-fn turn(monkeys: &Vec<Monkey>) -> Vec<Monkey>
-{
-    let mut new_monkeys: Vec<Monkey> = monkeys.clone();
-    for index in 0..new_monkeys.len() {
-        println!("Monkey {}", index);
-        let monkey = new_monkeys[index].clone();
-        for item in &monkey.items {
-            let result = round(&monkey, &item);
-            new_monkeys[index].items.remove(0);
-            new_monkeys[result.throw_to_monkey].items.push(result.item_to_throw);
-            new_monkeys[index].nr_inspects += 1;
-        }
-    }
-    new_monkeys
 }
 
 
@@ -124,12 +125,6 @@ struct Monkey {
     if_true_throw_to_monkey: usize,
     if_false_throw_to_monkey: usize,
     nr_inspects: u64,
-}
-
-#[derive(PartialEq, Debug)]
-struct RoundResult {
-    throw_to_monkey: usize,
-    item_to_throw: u64,
 }
 
 #[cfg(test)]
@@ -154,14 +149,18 @@ mod tests {
     }
 
     #[test]
-    fn test_example()
+    fn test_example_1()
     {
         let input = fs::read_to_string("data/advent_of_code_2022/example_11.txt").unwrap();
-        let monkeys = let_monkeys_play(&input);
-        assert_eq!(monkeys[0].nr_inspects, 101);
-        assert_eq!(monkeys[1].nr_inspects, 95);
-        assert_eq!(monkeys[2].nr_inspects, 7);
-        assert_eq!(monkeys[3].nr_inspects, 105);
-        assert_eq!(calculate_monkey_business(&monkeys), 10605);
+        let result = solve_x(&input, true, 20);
+        assert_eq!(result, 10605);
+    }
+
+    #[test]
+    fn test_example_2()
+    {
+        let input = fs::read_to_string("data/advent_of_code_2022/example_11.txt").unwrap();
+        let result = solve_x(&input, false, 10000);
+        assert_eq!(result, 2713310158);
     }
 }
