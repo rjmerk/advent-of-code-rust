@@ -45,8 +45,9 @@ fn main() {
 fn solve_problem(year: i32, problem_nr: i32, problems: &HashMap<i32, fn()-> ()>) {
     println!();
     println!("Advent {}, problem {}", year, problem_nr);
+    let problem_to_solve = problems[&problem_nr];
     let now: Instant = Instant::now();
-    problems[&problem_nr]();
+    problem_to_solve();
     let duration: Duration = now.elapsed();
     println!("Time in milliseconds: {:>6.2}", duration.as_secs_f64() * 1000 as f64);
 }
