@@ -5,7 +5,6 @@ use std::collections::VecDeque;
 const A_VALUE: i32 = 'a' as i32;
 const START_CHAR: char = 'S';
 const FINISH_CHAR: char = 'E';
-const EXAMPLE_FILENAME: &str  = "data/advent_of_code_2022/example_12.txt";
 
 pub fn solve() {
     let input = fs::read_to_string("data/advent_of_code_2022/input_12.txt").unwrap();
@@ -41,18 +40,14 @@ struct Heightmap {
 
 impl Heightmap {
     fn from_str(input: &str) -> Self {
-        let rows: Vec<&str> = input.split("\n").collect();
-
-        let max_x = rows[0].len();
-        let max_y = rows.len();
-
-        let heights:  Vec<i32> = input
+        let heights: Vec<i32> = input
             .replace("\n", "")
             .replace(START_CHAR, "a")
             .replace(FINISH_CHAR, "z")
             .chars()
             .map(|c|  (c as i32) - A_VALUE)
             .collect();
+        let (max_x, max_y) = Heightmap::find_max_x_and_y(input);
         let (start_pos, end_pos) = Heightmap::find_start_and_end_pos(input, max_x);
         Self {
             heights,
@@ -63,14 +58,19 @@ impl Heightmap {
         }
     }
 
+    fn find_max_x_and_y(input: &str) -> (usize, usize) {
+        let rows: Vec<&str> = input.split("\n").collect();
+        (rows[0].len(), rows.len())
+    }
+
     fn find_start_and_end_pos(input: &str, max_x: usize) -> (Point, Point) {
-        let mut start_pos: Point = Point{x: 0, y:0};
-        let mut end_pos: Point = Point{x: 0, y:0};
+        let mut start_pos: Point = Point{x: 0, y: 0};
+        let mut end_pos: Point = Point{x: 0, y: 0};
         for (i, c) in input.replace("\n", "").chars().enumerate() {
             if c == START_CHAR {
-                start_pos = Point {x: (i % max_x) as usize, y: (i / max_x) as usize};
+                start_pos = Point {x: i % max_x, y: i / max_x};
             } else if c == FINISH_CHAR {
-                end_pos = Point {x: (i % max_x) as usize, y: (i / max_x) as usize};
+                end_pos = Point {x: i % max_x, y: i / max_x};
             };
         }
         (start_pos, end_pos)
@@ -87,19 +87,19 @@ impl Heightmap {
 
         let mut points_to_check: Vec<Point> = Vec::new();
         if point.x > 0 {
-            points_to_check.push(Point{x: point.x-1 , y: point.y });
+            points_to_check.push(Point{x: point.x - 1 , y: point.y });
         }
         if point.x < self.max_x - 1 {
-            points_to_check.push(Point{x: point.x+1 , y: point.y });
+            points_to_check.push(Point{x: point.x + 1 , y: point.y });
         }
         if point.y > 0 {
-            points_to_check.push(Point{x: point.x , y: point.y-1 });
+            points_to_check.push(Point{x: point.x , y: point.y - 1 });
         }
-        if point.y < self.max_y - 1{
-            points_to_check.push(Point{x: point.x , y: point.y+1 });
+        if point.y < self.max_y - 1 {
+            points_to_check.push(Point{x: point.x , y: point.y + 1 });
         }
         for p in points_to_check {
-            if height > self.height_at(p.x, p.y)
+            if height > self.height_at(p.x, p.y)  // You can go down
                || self.height_at(p.x, p.y) - height <= 1 {
                 result.push(p);
             }
@@ -111,9 +111,9 @@ impl Heightmap {
         let mut visited_points: HashSet<Point> = HashSet::new();
         visited_points.insert(self.start_pos.clone());
         let mut active_points: VecDeque<ActivePoint>= VecDeque::new();
-        for point in self.reachable_points_from(&self.start_pos) {
-            active_points.push_back(ActivePoint{point, distance: 1 })
-        }
+        active_points.push_back(
+            ActivePoint{point: self.start_pos.clone(), distance: 0}
+        );
         self.nr_steps(visited_points, active_points)
     }
 
@@ -158,13 +158,12 @@ impl Heightmap {
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
+    const EXAMPLE_FILENAME: &str = "data/advent_of_code_2022/example_12.txt";
 
     #[test]
-    fn test_example() {
-        let input = fs::read_to_string(EXAMPLE_FILENAME)
-            .unwrap();
+    fn test_example_1() {
+        let input = fs::read_to_string(EXAMPLE_FILENAME).unwrap();
         let hm = Heightmap::from_str(&input);
 
         assert_eq!(hm.start_pos, Point{x: 0, y: 0});
@@ -181,18 +180,10 @@ mod tests {
         let hm = Heightmap::from_str(&input);
         println!("max_x {}", hm.max_x);
         println!("max_y {}", hm.max_y);
-
-        for y in 0..hm.max_y {
-            for x in 0..hm.max_x {
-                let c: char = char::from_u32( (A_VALUE + hm.height_at(x,y)) as u32).unwrap();
-                print!("{}",  c);
-            }
-            println!();
-        }
         let pos = Point{x: 0, y:0};
         let expected = [
-            Point{x: 1, y:0},
-            Point{x: 0, y:1},
+            Point{x: 1, y: 0},
+            Point{x: 0, y: 1},
         ];
         assert_eq!(hm.reachable_points_from(&pos), expected);
     }
