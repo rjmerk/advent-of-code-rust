@@ -1,6 +1,6 @@
-// use std::collections::HashSet;
-use std::fs;
-// use itertools::Position;
+use std::collections::HashSet;
+use std::{cmp, fs};
+use std::collections::VecDeque;
 
 const A_VALUE: i32 = 'a' as i32;
 const START_CHAR: char = 'S';
@@ -17,12 +17,16 @@ pub fn solve()
 
 }
 
-
-
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Hash, Eq, Clone)]
 struct Point {
     x: usize,
     y: usize,
+}
+
+#[derive(PartialEq, Debug)]
+struct ActivePoint {
+    point: Point,
+    distance: i32,
 }
 
 struct Heightmap {
@@ -48,19 +52,7 @@ impl Heightmap {
             .chars()
             .map(|c|  (c as i32) - A_VALUE)
             .collect();
-
-        // let mut heights : Vec<i32> = Vec::new();
-        // for x in 0..max_x +1 {
-        //     for y in 0..max_y +1 {
-        //         if x == 0 || x == max_x || y == 0 || y == max_y {
-        //             heights.push(26);
-        //         } else {
-        //             let index = y * max_x + x;
-        //             heights.push(old_heights[index]);
-        //         }
-        //     }
-        // }
-        let (start_pos, end_pos) = Heightmap::find_start_and_end_pos(input);
+        let (start_pos, end_pos) = Heightmap::find_start_and_end_pos(input, max_x);
         Self {
             heights,
             start_pos,
@@ -70,20 +62,19 @@ impl Heightmap {
         }
     }
 
-    fn find_start_and_end_pos(input: &str) -> (Point, Point)
+    fn find_start_and_end_pos(input: &str, max_x: usize) -> (Point, Point)
     {
         let mut start_pos: Point = Point{x: 0, y:0};
         let mut end_pos: Point = Point{x: 0, y:0};
         for (i, c) in input.replace("\n", "").chars().enumerate() {
             if c == START_CHAR {
-                start_pos = Point {x: (i % 8) as usize, y: (i / 8) as usize};
+                start_pos = Point {x: (i % max_x) as usize, y: (i / max_x) as usize};
             } else if c == FINISH_CHAR {
-                end_pos = Point {x: (i % 8) as usize, y: (i / 8) as usize};
+                end_pos = Point {x: (i % max_x) as usize, y: (i / max_x) as usize};
             };
         }
         (start_pos, end_pos)
     }
-
 
     fn height_at(&self, x: usize, y: usize) -> i32
     {
@@ -100,43 +91,47 @@ impl Heightmap {
         if point.x > 0 {
             points_to_check.push(Point{x: point.x-1 , y: point.y });
         }
-        if point.x < self.max_x {
+        if point.x < self.max_x - 1 {
             points_to_check.push(Point{x: point.x+1 , y: point.y });
         }
         if point.y > 0 {
             points_to_check.push(Point{x: point.x , y: point.y-1 });
         }
-        if point.y < self.max_y {
+        if point.y < self.max_y - 1{
             points_to_check.push(Point{x: point.x , y: point.y+1 });
         }
         for p in points_to_check {
-            if i32::abs(height - self.height_at(p.x, p.y)) <= 1 {
+            if height > self.height_at(p.x, p.y)
+               || self.height_at(p.x, p.y) - height <= 1 {
                 result.push(p);
             }
         }
         result
     }
 
-    fn number_of_steps(&self) -> u32 {
-        let mut paths: Vec<Vec<Point>> = Vec::new();
-        let mut finished_paths: Vec<Vec<Point>> = Vec::new();
-        for pos in self.reachable_points_from(&self.start_pos) {
-            paths.push(Vec!(pos))
+    fn number_of_steps(&self) -> i32 {
+        let mut visited_points: HashSet<Point> = HashSet::new();
+        visited_points.insert(self.start_pos.clone());
+        let mut active_points: VecDeque<ActivePoint>= VecDeque::new();
+        for point in self.reachable_points_from(&self.start_pos) {
+            active_points.push_back(ActivePoint{point, distance: 1 })
         }
-        loop {
-            let mut new_paths: Vec<Vec<Point>> = Vec::new();
-            for mut path in paths {
-                let last_point = path.last().unwrap();
-                let new_points = self.reachable_points_from(last_point);
-                for new_point in new_points {
-                    let new_path = path.copy();
-                    new_path.push(new_point);
-                    new_paths.push(new_path);
+        let mut min_distance: i32 = i32::MAX;
+        while !active_points.is_empty() {
+            let ap = active_points.pop_front().unwrap();
+            for point in self.reachable_points_from(&ap.point) {
+                if point == self.end_pos {
+                    println!("found it! {}", ap.distance + 1);
+                    min_distance = cmp::min(ap.distance + 1, min_distance);
+                }
+                if !visited_points.contains(&point) {
+                    let distance = ap.distance + 1;
+                    active_points.push_back( ActivePoint{point: point.clone(), distance});
+                    visited_points.insert(point);
                 }
             }
-            break;
         }
-        3
+        min_distance
     }
 }
 
@@ -180,7 +175,6 @@ mod tests {
             Point{x: 1, y:0},
             Point{x: 0, y:1},
         ];
-        assert_eq!(hm.reachable_points_from(&pos), expected)
+        assert_eq!(hm.reachable_points_from(&pos), expected);
     }
 }
-q
