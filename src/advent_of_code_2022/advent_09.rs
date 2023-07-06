@@ -1,11 +1,12 @@
 use std::collections::HashSet;
-use std::fs;
+use std::{fs, io};
 
-pub fn solve()
+pub fn solve() -> Result<(), io::Error>
 {
     let input = fs::read_to_string("data/advent_of_code_2022/input_09.txt").unwrap();
     let result = visited_positions(&input);
     println!("The number of positions the tail of the rope visits at least once is {}", result.len());
+    Ok(())
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]

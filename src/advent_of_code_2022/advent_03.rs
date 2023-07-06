@@ -1,8 +1,8 @@
-use std::fs;
+use std::{fs, io};
 
-pub fn solve()
+pub fn solve() -> Result<(), io::Error>
 {
-    let input = fs::read_to_string("data/advent_of_code_2022/input_03.txt").unwrap();
+    let input = fs::read_to_string("data/advent_of_code_2022/input_03.txt")?;
     let result: u32 = input
         .split("\n")
         .map(find_common_item)
@@ -18,6 +18,7 @@ pub fn solve()
         .map(priority)
         .sum();
     println!("The sum of the priority of the badges is {}", result_2);
+    Ok(())
 }
 
 fn find_common_item(s: &str) -> Result<String, &str>

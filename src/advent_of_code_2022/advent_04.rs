@@ -1,6 +1,6 @@
-use std::fs;
+use std::{fs, io};
 
-pub fn solve()
+pub fn solve() -> Result<(), io::Error>
 {
     let input = fs::read_to_string("data/advent_of_code_2022/input_04.txt").unwrap();
     let assignments = input.split("\n").map(assignment_from_str);
@@ -8,6 +8,7 @@ pub fn solve()
     println!("Number of fully contained sector assignments: {}", result);
     let result_2 = assignments.map(overlaps).filter(|x| *x).count();
     println!("Number of overlapping sector assignments: {}", result_2);
+    Ok(())
 }
 
 struct Assignment {

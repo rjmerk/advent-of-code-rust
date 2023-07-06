@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, io};
 use std::str::FromStr;
 
 const TRY_TO_LOSE: &str = "X";
@@ -6,9 +6,9 @@ const TRY_TO_DRAW: &str = "Y";
 const TRY_TO_WIN: &str = "Z";
 
 
-pub fn solve()
+pub fn solve() -> Result<(), io::Error>
 {
-    let input = fs::read_to_string("data/advent_of_code_2022/input_02.txt").unwrap();
+    let input = fs::read_to_string("data/advent_of_code_2022/input_02.txt")?;
     let rounds: Vec<Round> = input.split("\n").map(|s| create_round_from_str(s).unwrap()).collect();
     let score: i32 = rounds.iter().map(score_for_round).sum();
     println!("Total score of all rock-paper-scissor games is {}", score);
@@ -16,6 +16,7 @@ pub fn solve()
     let rounds_2: Vec<Round> = input.split("\n").map(|s| create_round_from_str_2(s).unwrap()).collect();
     let score_2: i32 = rounds_2.iter().map(score_for_round).sum();
     println!("Total score of all rock-paper-scissor games with correct Elf instructions is {}", score_2);
+    Ok(())
 }
 
 

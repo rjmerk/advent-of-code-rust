@@ -3,6 +3,7 @@ extern crate core;
 use std::env;
 use std::time::{Instant, Duration};
 use std::collections::HashMap;
+use std::error::Error;
 use itertools::sorted;
 
 mod advent_of_code_2018; mod advent_of_code_2022;
@@ -42,12 +43,21 @@ fn main() {
     }
 }
 
-fn solve_problem(year: i32, problem_nr: i32, problems: &HashMap<i32, fn()-> ()>) {
+fn solve_problem<E: Error>(
+    year: i32,
+    problem_nr: i32,
+    problems: &HashMap<i32, fn()-> Result<(), E>>
+) {
     println!();
     println!("Advent {}, problem {}", year, problem_nr);
     let problem_to_solve = problems[&problem_nr];
     let now: Instant = Instant::now();
-    problem_to_solve();
+    match problem_to_solve() {
+        Ok(_) => {}
+        Err(e) => {
+            println!("!!! Error happened: {}", e)
+        }
+    };
     let duration: Duration = now.elapsed();
     println!("Time in milliseconds: {:>6.2}", duration.as_secs_f64() * 1000 as f64);
 }

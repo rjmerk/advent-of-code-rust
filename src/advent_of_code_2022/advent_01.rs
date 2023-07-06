@@ -1,12 +1,13 @@
-use std::fs;
+use std::{fs, io};
 
-pub fn solve()
+pub fn solve() -> Result<(), io::Error>
 {
-    let input = fs::read_to_string("data/advent_of_code_2022/input_01.txt").unwrap();
+    let input = fs::read_to_string("data/advent_of_code_2022/input_01.txt")?;
     let calories = get_calories_per_elf_sorted(input);
     println!("Highest calories: {}", calories[0]);
     let three_highest_combined: u32 = calories.iter().take(3).sum();
     println!("Highest calories of top three together: {}", three_highest_combined);
+    Ok(())
 }
 
 fn get_calories_per_elf_sorted(input: String) -> Vec<u32>

@@ -1,9 +1,9 @@
 use std::collections::HashMap;
-use std::fs;
+use std::{fs, io};
 
 const MAX_SIZE: u64 = 100000;
 
-pub fn solve()
+pub fn solve() -> Result<(), io::Error>
 {
     let input = fs::read_to_string("data/advent_of_code_2022/input_07.txt").unwrap();
     let dir_sizes = find_dir_sizes(&input);
@@ -11,7 +11,7 @@ pub fn solve()
     println!("The sum of the total sizes of those directories is {}", result);
     let result_2: u64 = smallest_folder(&dir_sizes, 70000000, 30000000);
     println!("The smallest folder size is {}", result_2);
-
+    Ok(())
 }
 
 fn find_dir_sizes(input: &str) -> HashMap<String, u64>

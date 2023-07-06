@@ -1,7 +1,7 @@
-use std::fs;
+use std::{fs, io};
 use regex::Regex;
 
-pub fn solve()
+pub fn solve() -> Result<(), io::Error>
 {
     let input = fs::read_to_string("data/advent_of_code_2022/input_05.txt").unwrap();
     let (stack_str, instructions_str) = input.split_once("\n\n").unwrap();
@@ -20,6 +20,7 @@ pub fn solve()
         print!("{}", n[n.len()-1]);
     }
     println!();
+    Ok(())
 }
 
 fn parse_stack_from_str(input: Vec<&str>) -> Vec<Vec<char>>

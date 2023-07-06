@@ -1,6 +1,6 @@
-use std::fs;
+use std::{fs, io};
 
-pub fn solve()
+pub fn solve() -> Result<(), io::Error>
 {
     let input = fs::read_to_string("data/advent_of_code_2022/input_11.txt").unwrap();
     let result_part_1 = solve_x(&input, true, 20);
@@ -13,6 +13,7 @@ pub fn solve()
         "The level of monkey business after 10000 rounds is {}",
         result_part_2,
     );
+    Ok(())
 }
 
 fn solve_x(input: &str, with_worry_update: bool, nr_round: i32) -> u64

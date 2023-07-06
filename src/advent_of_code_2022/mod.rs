@@ -3,9 +3,10 @@ mod advent_06; mod advent_07; mod advent_08; mod advent_09; mod advent_10;
 mod advent_11; mod advent_12;
 
 use std::collections::HashMap;
+use std::io;
 
-pub fn init_advent_code_map_2022() -> HashMap<i32, fn()> {
-    let mut result: HashMap<i32, fn() -> ()> = HashMap::new();
+pub fn init_advent_code_map_2022() -> HashMap<i32, fn() -> Result<(), io::Error>> {
+    let mut result: HashMap<i32, fn() -> Result<(), io::Error>> = HashMap::new();
     result.insert(1, advent_01::solve);
     result.insert(2, advent_02::solve);
     result.insert(3, advent_03::solve);

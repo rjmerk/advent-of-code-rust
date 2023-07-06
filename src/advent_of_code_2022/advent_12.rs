@@ -1,13 +1,13 @@
 use std::collections::HashSet;
-use std::{cmp, fs};
+use std::{cmp, fs, io};
 use std::collections::VecDeque;
 
 const A_VALUE: i32 = 'a' as i32;
 const START_CHAR: char = 'S';
 const FINISH_CHAR: char = 'E';
 
-pub fn solve() {
-    let input = fs::read_to_string("data/advent_of_code_2022/input_12.txt").unwrap();
+pub fn solve() -> Result<(), io::Error>{
+    let input = fs::read_to_string("data/advent_of_code_2022/input_12.txt")?;
     let heightmap = Heightmap::from_str(&input);
     let result = heightmap.number_of_steps_from_start_to_end();
     println!(
@@ -16,6 +16,7 @@ pub fn solve() {
     let result_2 = heightmap.min_nr_steps_from_any_a_to_end();
     println!("The fewest steps required to move starting from any square with \
     elevation a to the location that should get the best signal is {}", result_2);
+    Ok(())
 }
 
 #[derive(PartialEq, Debug, Hash, Eq, Clone)]
@@ -139,7 +140,8 @@ impl Heightmap {
     ) -> i32 {
         let mut min_distance: i32 = i32::MAX;
         while !active_points.is_empty() {
-            let ap = active_points.pop_front().unwrap();
+            let ap = active_points.pop_front().expect(
+                "active_points should never be empty at this point");
             for point in self.reachable_points_from(&ap.point) {
                 if point == self.end_pos {
                     println!("found it! {}", ap.distance + 1);
@@ -175,8 +177,7 @@ mod tests {
 
     #[test]
     fn test_reachable_points_from() {
-        let input = fs::read_to_string(EXAMPLE_FILENAME)
-            .unwrap();
+        let input = fs::read_to_string(EXAMPLE_FILENAME).unwrap();
         let hm = Heightmap::from_str(&input);
         println!("max_x {}", hm.max_x);
         println!("max_y {}", hm.max_y);
@@ -190,8 +191,7 @@ mod tests {
 
     #[test]
     fn test_example_2() {
-        let input = fs::read_to_string(EXAMPLE_FILENAME)
-            .unwrap();
+        let input = fs::read_to_string(EXAMPLE_FILENAME).unwrap();
         let hm = Heightmap::from_str(&input);
 
         assert_eq!(hm.start_pos, Point{x: 0, y: 0});

@@ -1,6 +1,6 @@
-use std::fs;
+use std::{fs, io};
 
-pub fn solve()
+pub fn solve() -> Result<(), io::Error>
 {
     let input = fs::read_to_string("data/advent_of_code_2022/input_08.txt").unwrap();
     let mut heightmap = Heightmap::from_str(input);
@@ -8,6 +8,7 @@ pub fn solve()
     println!("The number of trees visible from outside the map is {}", result);
     let result_2 = heightmap.max_scenic_score();
     println!("The highest scenic score possible for any tree is {}", result_2);
+    Ok(())
 }
 
 

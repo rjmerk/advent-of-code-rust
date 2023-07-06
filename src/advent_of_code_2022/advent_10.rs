@@ -1,12 +1,12 @@
-use std::fs;
+use std::{fs, io};
 
-pub fn solve()
+pub fn solve() -> Result<(), io::Error>
 {
     let input = fs::read_to_string("data/advent_of_code_2022/input_10.txt").unwrap();
     let instructions = input.lines().collect();
     let actual = register_values(&instructions);
-    println!("{}", answer_part_1(&actual))
-
+    println!("{}", answer_part_1(&actual));
+    Ok(())
 }
 
 fn register_values(instructions: &Vec<&str>) -> Vec<i32>

@@ -1,12 +1,13 @@
-use std::fs;
+use std::{fs, io};
 
-pub fn solve()
+pub fn solve() -> Result<(), io::Error>
 {
     let input = fs::read_to_string("data/advent_of_code_2022/input_06.txt").unwrap();
     let result = first_marker_after_character_n(4, &input);
     println!("Nr/ of characters needed to be processed before the first start-of-packet marker after 4 uniques is detected is {}", result);
     let result_2 = first_marker_after_character_n(14, &input);
     println!("Nr/ of characters needed to be processed before the first start-of-packet marker after 14 uniques is detected is {}", result_2);
+    Ok(())
 }
 
 fn first_marker_after_character_n(n:usize, stream: &str) -> usize
