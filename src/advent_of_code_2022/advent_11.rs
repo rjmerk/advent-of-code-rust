@@ -1,7 +1,6 @@
 use std::{fs, io};
 
-pub fn solve() -> Result<(), io::Error>
-{
+pub fn solve() -> Result<(), io::Error> {
     let input = fs::read_to_string("data/advent_of_code_2022/input_11.txt").unwrap();
     let result_part_1 = solve_x(&input, true, 20);
     println!(
@@ -16,14 +15,10 @@ pub fn solve() -> Result<(), io::Error>
     Ok(())
 }
 
-fn solve_x(input: &str, with_worry_update: bool, nr_round: i32) -> u64
-{
+fn solve_x(input: &str, with_worry_update: bool, nr_round: i32) -> u64 {
     let monkey_strs: Vec<&str> = input.split("\n\n").collect();
     let mut monkeys: Vec<Monkey> = monkey_strs.into_iter().map(parse_monkey).collect();
-    let common_divider: u64 = monkeys
-        .iter()
-        .map(|monkey| monkey.divisible_by)
-        .product();
+    let common_divider: u64 = monkeys.iter().map(|monkey| monkey.divisible_by).product();
 
     for _n in 0..nr_round {
         for m in 0..monkeys.len() {
@@ -41,11 +36,7 @@ fn solve_x(input: &str, with_worry_update: bool, nr_round: i32) -> u64
     calculate_monkey_business(&monkeys)
 }
 
-fn execute_round(
-    with_worry_update: &bool,
-    monkey: &mut Monkey,
-) -> (usize, u64)
-{
+fn execute_round(with_worry_update: &bool, monkey: &mut Monkey) -> (usize, u64) {
     let item = monkey.items.remove(0);
     let mut item_updated = match monkey.operation {
         Operation::MultiplyBy(value) => item * value,
@@ -63,20 +54,20 @@ fn execute_round(
     (target_monkey, item_updated)
 }
 
-
-fn calculate_monkey_business(monkeys: &Vec<Monkey>) -> u64
-{
+fn calculate_monkey_business(monkeys: &Vec<Monkey>) -> u64 {
     let mut result: Vec<u64> = monkeys.iter().map(|m| m.nr_inspects).collect();
     result.sort();
     result.reverse();
     result[0] * result[1]
 }
 
-fn parse_monkey(input: &str) -> Monkey
-{
+fn parse_monkey(input: &str) -> Monkey {
     let lines: Vec<&str> = input.lines().collect();
     let (_, items_str): (&str, &str) = (lines[1].split_once(":")).unwrap();
-    let items: Vec<u64> = items_str.split(",").map(|x| x.trim().parse().unwrap()).collect();
+    let items: Vec<u64> = items_str
+        .split(",")
+        .map(|x| x.trim().parse().unwrap())
+        .collect();
     let operation = parse_operation(lines[2]);
     let (_, divisible_str) = (lines[3].split_once("by")).unwrap();
     let divisible_by: u64 = divisible_str.trim().parse().unwrap();
@@ -93,8 +84,7 @@ fn parse_monkey(input: &str) -> Monkey
     }
 }
 
-fn parse_operation(line: &str) -> Operation
-{
+fn parse_operation(line: &str) -> Operation {
     let (_, op_str) = (line.split_once("old")).unwrap();
 
     if &op_str[3..] == "old" {
@@ -109,7 +99,6 @@ fn parse_operation(line: &str) -> Operation
         Operation::Add(0) // should not happen
     };
 }
-
 
 #[derive(PartialEq, Debug, Clone)]
 enum Operation {
@@ -130,12 +119,11 @@ struct Monkey {
 
 #[cfg(test)]
 mod tests {
-    use crate::advent_of_code_2022::advent_11::Operation::MultiplyBy;
     use super::*;
+    use crate::advent_of_code_2022::advent_11::Operation::MultiplyBy;
 
     #[test]
-    fn test_parse_monkey()
-    {
+    fn test_parse_monkey() {
         let input = "Monkey 0:\n  Starting items: 79, 98\n  Operation: new = old * 19\n  Test: divisible by 23\n    If true: throw to monkey 2\n    If false: throw to monkey 3\n";
         let actual = parse_monkey(input);
         let expected = Monkey {
@@ -150,16 +138,14 @@ mod tests {
     }
 
     #[test]
-    fn test_example_1()
-    {
+    fn test_example_1() {
         let input = fs::read_to_string("data/advent_of_code_2022/example_11.txt").unwrap();
         let result = solve_x(&input, true, 20);
         assert_eq!(result, 10605);
     }
 
     #[test]
-    fn test_example_2()
-    {
+    fn test_example_2() {
         let input = fs::read_to_string("data/advent_of_code_2022/example_11.txt").unwrap();
         let result = solve_x(&input, false, 10000);
         assert_eq!(result, 2713310158);

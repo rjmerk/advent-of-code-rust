@@ -1,4 +1,5 @@
-mod advent_25; mod advent_24;
+mod advent_24;
+mod advent_25;
 
 use std::collections::HashMap;
 

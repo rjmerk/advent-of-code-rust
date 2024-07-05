@@ -1,8 +1,7 @@
 use regex::Regex;
 use std::str::FromStr;
 
-pub fn solve()
-{}
+pub fn solve() {}
 
 #[derive(PartialEq, Debug)]
 enum AttackType {
@@ -14,18 +13,17 @@ enum AttackType {
 }
 
 impl FromStr for AttackType {
-
     type Err = ();
 
     fn from_str(input: &str) -> Result<AttackType, Self::Err> {
         let lowercase_input: &str = &input.to_lowercase();
         match lowercase_input {
-            "fire"  => Ok(AttackType::Fire),
-            "radiation"  => Ok(AttackType::Radiation),
-            "bludgeoning"  => Ok(AttackType::Bludgeoning),
+            "fire" => Ok(AttackType::Fire),
+            "radiation" => Ok(AttackType::Radiation),
+            "bludgeoning" => Ok(AttackType::Bludgeoning),
             "slashing" => Ok(AttackType::Slashing),
             "cold" => Ok(AttackType::Cold),
-            _      => Err(()),
+            _ => Err(()),
         }
     }
 }
@@ -42,7 +40,6 @@ struct Group {
 }
 
 impl Group {
-
     // fn effective_power(&self) -> i32
     // {
     //     self.units * self.attack_damage
@@ -87,12 +84,9 @@ impl Group {
     //     // enemies.sort_unstable_by(Group::better_target);
     //     target
     // }
-
 }
 
-
 impl FromStr for Group {
-
     type Err = ();
 
     fn from_str(input: &str) -> Result<Group, Self::Err> {
@@ -102,10 +96,30 @@ impl FromStr for Group {
         ).unwrap();
         let matches = re.captures(lowercase_input).unwrap();
         let units = matches.name("units").unwrap().as_str().parse().unwrap();
-        let hit_points = matches.name("hit_points").unwrap().as_str().parse().unwrap();
-        let attack_damage = matches.name("attack_damage").unwrap().as_str().parse().unwrap();
-        let attack_type = matches.name("attack_type").unwrap().as_str().parse().unwrap();
-        let initiative = matches.name("initiative").unwrap().as_str().parse().unwrap();
+        let hit_points = matches
+            .name("hit_points")
+            .unwrap()
+            .as_str()
+            .parse()
+            .unwrap();
+        let attack_damage = matches
+            .name("attack_damage")
+            .unwrap()
+            .as_str()
+            .parse()
+            .unwrap();
+        let attack_type = matches
+            .name("attack_type")
+            .unwrap()
+            .as_str()
+            .parse()
+            .unwrap();
+        let initiative = matches
+            .name("initiative")
+            .unwrap()
+            .as_str()
+            .parse()
+            .unwrap();
 
         let re_weak = Regex::new(r"weak to ([\w\s,]+)").unwrap();
         let re_immune = Regex::new(r"immune to ([\w\s,]+)").unwrap();
@@ -114,12 +128,26 @@ impl FromStr for Group {
         let immune_matches = re_immune.captures(lowercase_input);
 
         let weaknesses: Vec<AttackType> = if weak_matches.is_some() {
-            weak_matches.unwrap().get(1).unwrap().as_str().split(",").map(|s| s.replace("weak to ", "").trim().parse().unwrap()).collect()
+            weak_matches
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str()
+                .split(",")
+                .map(|s| s.replace("weak to ", "").trim().parse().unwrap())
+                .collect()
         } else {
             vec![]
         };
         let immunities: Vec<AttackType> = if immune_matches.is_some() {
-            immune_matches.unwrap().get(1).unwrap().as_str().split(",").map(|s| s.replace("immune to", "").trim().parse().unwrap()).collect()
+            immune_matches
+                .unwrap()
+                .get(1)
+                .unwrap()
+                .as_str()
+                .split(",")
+                .map(|s| s.replace("immune to", "").trim().parse().unwrap())
+                .collect()
         } else {
             vec![]
         };
@@ -136,10 +164,8 @@ impl FromStr for Group {
     }
 }
 
-
 #[cfg(test)]
-mod tests
-{
+mod tests {
     use super::*;
     // const DEFAULT_GROUP: Group = Group {
     //     units: 10,
@@ -152,8 +178,7 @@ mod tests
     // };
 
     #[test]
-    fn test_parse_group_1()
-    {
+    fn test_parse_group_1() {
         let t = "18 units each with 729 hit points (weak to fire; immune to cold, slashing) with an attack that does 8 radiation damage at initiative 10";
         let group: Group = t.parse().unwrap();
         assert_eq!(group.units, 18);
@@ -162,12 +187,14 @@ mod tests
         assert_eq!(group.attack_type, AttackType::Radiation);
         assert_eq!(group.initiative, 10);
         assert_eq!(group.weaknesses, vec![AttackType::Fire]);
-        assert_eq!(group.immunities, vec![AttackType::Cold, AttackType::Slashing]);
+        assert_eq!(
+            group.immunities,
+            vec![AttackType::Cold, AttackType::Slashing]
+        );
     }
 
     #[test]
-    fn test_parse_group_2()
-    {
+    fn test_parse_group_2() {
         // What if the group has no weaknesses or immunities?
         let t = "371 units each with 8033 hit points with an attack that does 204 bludgeoning damage at initiative 15";
         let group: Group = t.parse().unwrap();
@@ -181,8 +208,7 @@ mod tests
     }
 
     #[test]
-    fn test_parse_group_3()
-    {
+    fn test_parse_group_3() {
         // What if "weak to" and "immune to" are in a different order?
         let t = "1907 units each with 1530 hit points (immune to fire, bludgeoning; weak to radiation) with an attack that does 7 fire damage at initiative 9";
         let group: Group = t.parse().unwrap();
@@ -192,7 +218,10 @@ mod tests
         assert_eq!(group.attack_type, AttackType::Fire);
         assert_eq!(group.initiative, 9);
         assert_eq!(group.weaknesses, vec![AttackType::Radiation]);
-        assert_eq!(group.immunities, vec![AttackType::Fire, AttackType::Bludgeoning]);
+        assert_eq!(
+            group.immunities,
+            vec![AttackType::Fire, AttackType::Bludgeoning]
+        );
     }
 
     // #[test]
@@ -226,5 +255,4 @@ mod tests
     //     xs.sort_by(sort_fn);
     //     println!();
     // }
-
 }

@@ -3,19 +3,20 @@ use std::{fs, io};
 
 const MAX_SIZE: u64 = 100000;
 
-pub fn solve() -> Result<(), io::Error>
-{
+pub fn solve() -> Result<(), io::Error> {
     let input = fs::read_to_string("data/advent_of_code_2022/input_07.txt").unwrap();
     let dir_sizes = find_dir_sizes(&input);
-    let result: u64 = dir_sizes.values().filter(|x| x <= && MAX_SIZE).sum();
-    println!("The sum of the total sizes of those directories is {}", result);
+    let result: u64 = dir_sizes.values().filter(|x| x <= &&MAX_SIZE).sum();
+    println!(
+        "The sum of the total sizes of those directories is {}",
+        result
+    );
     let result_2: u64 = smallest_folder(&dir_sizes, 70000000, 30000000);
     println!("The smallest folder size is {}", result_2);
     Ok(())
 }
 
-fn find_dir_sizes(input: &str) -> HashMap<String, u64>
-{
+fn find_dir_sizes(input: &str) -> HashMap<String, u64> {
     let mut current_path: Vec<&str> = Vec::new();
     let mut result: HashMap<String, u64> = HashMap::new();
     for line in input.lines() {
@@ -37,8 +38,7 @@ fn update_folder_size(
     line: &str,
     current_path: &Vec<&str>,
     mut result: HashMap<String, u64>,
-) -> HashMap<String, u64>
-{
+) -> HashMap<String, u64> {
     let (size_str, _filename) = line.split_once(" ").unwrap();
     let size: u64 = size_str.parse().unwrap();
     let mut c = current_path.clone();
@@ -54,8 +54,7 @@ fn smallest_folder(
     dir_sizes: &HashMap<String, u64>,
     disk_space: u64,
     space_needed_for_update: u64,
-) -> u64
-{
+) -> u64 {
     let total_size_of_everything = dir_sizes.get("/").unwrap();
     let space_needed_to_free = total_size_of_everything - (disk_space - space_needed_for_update);
 
@@ -72,15 +71,14 @@ fn smallest_folder(
 }
 
 #[cfg(test)]
-mod tests
-{
+mod tests {
     use super::*;
 
     #[test]
     fn test_find_dir_sizes() {
         let input = fs::read_to_string("data/advent_of_code_2022/example_07.txt").unwrap();
         let actual = find_dir_sizes(&input);
-        let sum_small_dir_sizes: u64 = actual.values().filter(|x| x <= && MAX_SIZE).sum();
+        let sum_small_dir_sizes: u64 = actual.values().filter(|x| x <= &&MAX_SIZE).sum();
         let mut expected = HashMap::new();
         expected.insert("//a/e".to_string(), 584);
         expected.insert("//a".to_string(), 94853);
@@ -88,12 +86,10 @@ mod tests
         expected.insert("/".to_string(), 48381165);
         assert_eq!(actual, expected);
         assert_eq!(sum_small_dir_sizes, 95437);
-
     }
 
     #[test]
-    fn test_update_folder_size()
-    {
+    fn test_update_folder_size() {
         let mut current_path: Vec<&str> = vec!["/", "a", "b"];
         let mut result: HashMap<String, u64> = HashMap::new();
         let line = "123 df9f.txt";
@@ -110,8 +106,7 @@ mod tests
     }
 
     #[test]
-    fn test_smallest_folder()
-    {
+    fn test_smallest_folder() {
         let input = fs::read_to_string("data/advent_of_code_2022/example_07.txt").unwrap();
         let dir_sizes = find_dir_sizes(&input);
         assert_eq!(smallest_folder(&dir_sizes, 70000000, 30000000), 24933642);

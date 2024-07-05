@@ -1,7 +1,6 @@
 use std::{fs, io};
 
-pub fn solve() -> Result<(), io::Error>
-{
+pub fn solve() -> Result<(), io::Error> {
     let input = fs::read_to_string("data/advent_of_code_2022/input_03.txt")?;
     let result: u32 = input
         .split("\n")
@@ -12,7 +11,8 @@ pub fn solve() -> Result<(), io::Error>
     println!("The sum of the priority of all common items is {}", result);
     let strings: Vec<String> = input.split("\n").map(|x| x.to_string()).collect();
     let triplets: Vec<Vec<String>> = split_into_triplets(strings);
-    let result_2: u32 = triplets.into_iter()
+    let result_2: u32 = triplets
+        .into_iter()
         .map(badge)
         .map(|x| x.unwrap())
         .map(priority)
@@ -21,14 +21,13 @@ pub fn solve() -> Result<(), io::Error>
     Ok(())
 }
 
-fn find_common_item(s: &str) -> Result<String, &str>
-{
+fn find_common_item(s: &str) -> Result<String, &str> {
     let i = s.len() / 2;
-    let part_1 = &s[0 .. i];
-    let part_2 = &s[i .. ];
+    let part_1 = &s[0..i];
+    let part_2 = &s[i..];
     for character in part_1.chars() {
         if part_2.contains(character) {
-            return Ok(character.to_string())
+            return Ok(character.to_string());
         }
     }
     Err("Could not find a common item")
@@ -40,15 +39,14 @@ fn priority(s: String) -> u32 {
         x as u32 - 38
     } else {
         x as u32 - 96
-    }
+    };
 }
 
-fn badge(strings: Vec<String>) -> Result<String, String>
-{
+fn badge(strings: Vec<String>) -> Result<String, String> {
     for character in strings[0].chars() {
         let mut found = true;
         for string in strings[1..].iter() {
-            if ! string.contains(character) {
+            if !string.contains(character) {
                 found = false;
             }
         }
@@ -59,7 +57,10 @@ fn badge(strings: Vec<String>) -> Result<String, String>
     Err("Couldn't find the badge".to_string())
 }
 
-fn split_into_triplets<T>(input: Vec<T>) -> Vec<Vec<T>> where T: Clone {
+fn split_into_triplets<T>(input: Vec<T>) -> Vec<Vec<T>>
+where
+    T: Clone,
+{
     let mut result: Vec<Vec<T>> = vec![];
     let mut n: u32 = 0;
     let mut store: Vec<T> = vec![];
@@ -76,13 +77,11 @@ fn split_into_triplets<T>(input: Vec<T>) -> Vec<Vec<T>> where T: Clone {
 }
 
 #[cfg(test)]
-mod tests
-{
+mod tests {
     use super::*;
 
     #[test]
-    fn test_find_common_item()
-    {
+    fn test_find_common_item() {
         assert_eq!(
             find_common_item("vJrwpWtwJgWrhcsFMMfFFhFp"),
             Ok("p".to_string())
@@ -91,18 +90,12 @@ mod tests
             find_common_item("jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL"),
             Ok("L".to_string())
         );
-        assert_eq!(
-            find_common_item("PmmdzqPrVvPwwTWBwg"),
-            Ok("P".to_string())
-        );
+        assert_eq!(find_common_item("PmmdzqPrVvPwwTWBwg"), Ok("P".to_string()));
         assert_eq!(
             find_common_item("wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn"),
             Ok("v".to_string())
         );
-        assert_eq!(
-            find_common_item("ttgJtRGJQctTZtZT"),
-            Ok("t".to_string())
-        );
+        assert_eq!(find_common_item("ttgJtRGJQctTZtZT"), Ok("t".to_string()));
         assert_eq!(
             find_common_item("CrZsJsPPZsGzwwsLwLmpwMDw"),
             Ok("s".to_string())
@@ -111,7 +104,6 @@ mod tests
             find_common_item("abcdef"),
             Err("Could not find a common item")
         );
-
     }
 
     #[test]
@@ -129,7 +121,7 @@ mod tests
         let xs = vec![
             "vJrwpWtwJgWrhcsFMMfFFhFp".to_string(),
             "jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL".to_string(),
-            "PmmdzqPrVvPwwTWBwg".to_string()
+            "PmmdzqPrVvPwwTWBwg".to_string(),
         ];
         assert_eq!(badge(xs), Ok("r".to_string()));
 

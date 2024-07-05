@@ -1,10 +1,13 @@
 use std::{fs, io};
 
-pub fn solve() -> Result<(), io::Error>
-{
+pub fn solve() -> Result<(), io::Error> {
     let input = fs::read_to_string("data/advent_of_code_2022/input_04.txt").unwrap();
     let assignments = input.split("\n").map(assignment_from_str);
-    let result = assignments.clone().map(fully_contains).filter(|x| *x).count();
+    let result = assignments
+        .clone()
+        .map(fully_contains)
+        .filter(|x| *x)
+        .count();
     println!("Number of fully contained sector assignments: {}", result);
     let result_2 = assignments.map(overlaps).filter(|x| *x).count();
     println!("Number of overlapping sector assignments: {}", result_2);
@@ -30,29 +33,22 @@ fn assignment_from_str(s: &str) -> Assignment {
     }
 }
 
-fn fully_contains(assignment: Assignment) -> bool
-{
+fn fully_contains(assignment: Assignment) -> bool {
     (assignment.start_1 >= assignment.start_2 && assignment.end_1 <= assignment.end_2)
-    || (assignment.start_2 >= assignment.start_1 && assignment.end_2 <= assignment.end_1)
+        || (assignment.start_2 >= assignment.start_1 && assignment.end_2 <= assignment.end_1)
 }
 
-fn overlaps(assignment: Assignment) -> bool
-{
+fn overlaps(assignment: Assignment) -> bool {
     // It's easier to determine when they DONT overlap and negate that
-    !(
-        (assignment.end_1 < assignment.start_2)
-        || (assignment.end_2 < assignment.start_1)
-    )
+    !((assignment.end_1 < assignment.start_2) || (assignment.end_2 < assignment.start_1))
 }
 
 #[cfg(test)]
-mod tests
-{
+mod tests {
     use super::*;
 
     #[test]
-    fn test_assignment_from_str()
-    {
+    fn test_assignment_from_str() {
         let actual = assignment_from_str("2-4,6-8");
         assert_eq!(actual.start_1, 2);
         assert_eq!(actual.end_1, 4);
@@ -61,8 +57,7 @@ mod tests
     }
 
     #[test]
-    fn test_fully_contains()
-    {
+    fn test_fully_contains() {
         let a1 = assignment_from_str("2-8,3-7");
         let a2 = assignment_from_str("6-6,4-6");
         let a3 = assignment_from_str("5-7,7-9");
@@ -72,8 +67,7 @@ mod tests
     }
 
     #[test]
-    fn test_overlaps()
-    {
+    fn test_overlaps() {
         let a1 = assignment_from_str("5-7,7-9");
         let a2 = assignment_from_str("2-8,3-7");
         let a3 = assignment_from_str("2-6,4-8");

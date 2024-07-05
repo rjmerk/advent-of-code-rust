@@ -1,21 +1,26 @@
 use std::collections::HashSet;
-use std::{cmp, fs, io};
 use std::collections::VecDeque;
+use std::{cmp, fs, io};
 
 const A_VALUE: i32 = 'a' as i32;
 const START_CHAR: char = 'S';
 const FINISH_CHAR: char = 'E';
 
-pub fn solve() -> Result<(), io::Error>{
+pub fn solve() -> Result<(), io::Error> {
     let input = fs::read_to_string("data/advent_of_code_2022/input_12.txt")?;
     let heightmap = Heightmap::from_str(&input);
     let result = heightmap.number_of_steps_from_start_to_end();
     println!(
         "The fewest steps required to move from your current position to the \
-         location that should get the best signal is {}", result);
+         location that should get the best signal is {}",
+        result
+    );
     let result_2 = heightmap.min_nr_steps_from_any_a_to_end();
-    println!("The fewest steps required to move starting from any square with \
-    elevation a to the location that should get the best signal is {}", result_2);
+    println!(
+        "The fewest steps required to move starting from any square with \
+    elevation a to the location that should get the best signal is {}",
+        result_2
+    );
     Ok(())
 }
 
@@ -46,7 +51,7 @@ impl Heightmap {
             .replace(START_CHAR, "a")
             .replace(FINISH_CHAR, "z")
             .chars()
-            .map(|c|  (c as i32) - A_VALUE)
+            .map(|c| (c as i32) - A_VALUE)
             .collect();
         let (max_x, max_y) = Heightmap::find_max_x_and_y(input);
         let (start_pos, end_pos) = Heightmap::find_start_and_end_pos(input, max_x);
@@ -65,13 +70,19 @@ impl Heightmap {
     }
 
     fn find_start_and_end_pos(input: &str, max_x: usize) -> (Point, Point) {
-        let mut start_pos: Point = Point{x: 0, y: 0};
-        let mut end_pos: Point = Point{x: 0, y: 0};
+        let mut start_pos: Point = Point { x: 0, y: 0 };
+        let mut end_pos: Point = Point { x: 0, y: 0 };
         for (i, c) in input.replace("\n", "").chars().enumerate() {
             if c == START_CHAR {
-                start_pos = Point {x: i % max_x, y: i / max_x};
+                start_pos = Point {
+                    x: i % max_x,
+                    y: i / max_x,
+                };
             } else if c == FINISH_CHAR {
-                end_pos = Point {x: i % max_x, y: i / max_x};
+                end_pos = Point {
+                    x: i % max_x,
+                    y: i / max_x,
+                };
             };
         }
         (start_pos, end_pos)
@@ -88,20 +99,33 @@ impl Heightmap {
 
         let mut points_to_check: Vec<Point> = Vec::new();
         if point.x > 0 {
-            points_to_check.push(Point{x: point.x - 1 , y: point.y });
+            points_to_check.push(Point {
+                x: point.x - 1,
+                y: point.y,
+            });
         }
         if point.x < self.max_x - 1 {
-            points_to_check.push(Point{x: point.x + 1 , y: point.y });
+            points_to_check.push(Point {
+                x: point.x + 1,
+                y: point.y,
+            });
         }
         if point.y > 0 {
-            points_to_check.push(Point{x: point.x , y: point.y - 1 });
+            points_to_check.push(Point {
+                x: point.x,
+                y: point.y - 1,
+            });
         }
         if point.y < self.max_y - 1 {
-            points_to_check.push(Point{x: point.x , y: point.y + 1 });
+            points_to_check.push(Point {
+                x: point.x,
+                y: point.y + 1,
+            });
         }
         for p in points_to_check {
             if height > self.height_at(p.x, p.y)  // You can go down
-               || self.height_at(p.x, p.y) - height <= 1 {
+               || self.height_at(p.x, p.y) - height <= 1
+            {
                 result.push(p);
             }
         }
@@ -111,10 +135,11 @@ impl Heightmap {
     fn number_of_steps_from_start_to_end(&self) -> i32 {
         let mut visited_points: HashSet<Point> = HashSet::new();
         visited_points.insert(self.start_pos.clone());
-        let mut active_points: VecDeque<ActivePoint>= VecDeque::new();
-        active_points.push_back(
-            ActivePoint{point: self.start_pos.clone(), distance: 0}
-        );
+        let mut active_points: VecDeque<ActivePoint> = VecDeque::new();
+        active_points.push_back(ActivePoint {
+            point: self.start_pos.clone(),
+            distance: 0,
+        });
         self.nr_steps(visited_points, active_points)
     }
 
@@ -124,8 +149,11 @@ impl Heightmap {
         for x in 0..self.max_x {
             for y in 0..self.max_y {
                 if self.height_at(x, y) == 0 {
-                    visited_points.insert(Point{x, y});
-                    let ap = ActivePoint{point: Point{x, y}, distance: 0};
+                    visited_points.insert(Point { x, y });
+                    let ap = ActivePoint {
+                        point: Point { x, y },
+                        distance: 0,
+                    };
                     active_points.push_back(ap);
                 }
             }
@@ -140,8 +168,9 @@ impl Heightmap {
     ) -> i32 {
         let mut min_distance: i32 = i32::MAX;
         while !active_points.is_empty() {
-            let ap = active_points.pop_front().expect(
-                "active_points should never be empty at this point");
+            let ap = active_points
+                .pop_front()
+                .expect("active_points should never be empty at this point");
             for point in self.reachable_points_from(&ap.point) {
                 if point == self.end_pos {
                     println!("found it! {}", ap.distance + 1);
@@ -149,7 +178,10 @@ impl Heightmap {
                 }
                 if !visited_points.contains(&point) {
                     let distance = ap.distance + 1;
-                    active_points.push_back( ActivePoint{point: point.clone(), distance});
+                    active_points.push_back(ActivePoint {
+                        point: point.clone(),
+                        distance,
+                    });
                     visited_points.insert(point);
                 }
             }
@@ -161,15 +193,14 @@ impl Heightmap {
 #[cfg(test)]
 mod tests {
     use super::*;
-    const EXAMPLE_FILENAME: &str = "data/advent_of_code_2022/example_12.txt";
 
     #[test]
     fn test_example_1() {
-        let input = fs::read_to_string(EXAMPLE_FILENAME).unwrap();
+        let input = get_example_from_file();
         let hm = Heightmap::from_str(&input);
 
-        assert_eq!(hm.start_pos, Point{x: 0, y: 0});
-        assert_eq!(hm.end_pos, Point{x: 5, y: 2});
+        assert_eq!(hm.start_pos, Point { x: 0, y: 0 });
+        assert_eq!(hm.end_pos, Point { x: 5, y: 2 });
 
         let result = hm.number_of_steps_from_start_to_end();
         assert_eq!(result, 31);
@@ -177,27 +208,28 @@ mod tests {
 
     #[test]
     fn test_reachable_points_from() {
-        let input = fs::read_to_string(EXAMPLE_FILENAME).unwrap();
+        let input = get_example_from_file();
         let hm = Heightmap::from_str(&input);
         println!("max_x {}", hm.max_x);
         println!("max_y {}", hm.max_y);
-        let pos = Point{x: 0, y:0};
-        let expected = [
-            Point{x: 1, y: 0},
-            Point{x: 0, y: 1},
-        ];
+        let pos = Point { x: 0, y: 0 };
+        let expected = [Point { x: 1, y: 0 }, Point { x: 0, y: 1 }];
         assert_eq!(hm.reachable_points_from(&pos), expected);
     }
 
     #[test]
     fn test_example_2() {
-        let input = fs::read_to_string(EXAMPLE_FILENAME).unwrap();
+        let input = get_example_from_file();
         let hm = Heightmap::from_str(&input);
 
-        assert_eq!(hm.start_pos, Point{x: 0, y: 0});
-        assert_eq!(hm.end_pos, Point{x: 5, y: 2});
+        assert_eq!(hm.start_pos, Point { x: 0, y: 0 });
+        assert_eq!(hm.end_pos, Point { x: 5, y: 2 });
 
         let result = hm.min_nr_steps_from_any_a_to_end();
         assert_eq!(result, 29);
+    }
+
+    fn get_example_from_file() -> String {
+        fs::read_to_string("data/advent_of_code_2022/example_12.txt").unwrap()
     }
 }
